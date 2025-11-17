@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Research Websites — Grouped Directory</title>
+  <meta name="description" content="Grouped directory of top research websites. Search, jump to categories, and download the Excel list."/>
+  <style>
+    :root{
+      --bg:#f7fbff;
+      --card:#ffffff;
+      --muted:#64748b;
+      --accent:#0b5cff;
+      --radius:12px;
+      --shadow: 0 10px 30px rgba(2,6,23,0.06);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#ffffff,#f1f5f9);
+      color:#0f172a;
+      -webkit-font-smoothing:antialiased;
+      padding:28px;
+    }
+    .wrap{max-width:1100px;margin:0 auto}
+    header{display:flex;flex-direction:column;gap:12px;margin-bottom:18px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .brand h1{margin:0;font-size:26px}
+    .brand p{margin:6px 0 0;color:var(--muted);font-size:14px}
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{background:var(--accent);color:#fff;padding:9px 12px;border-radius:999px;border:none;cursor:pointer;font-weight:600}
+    .download{background:transparent;border:1px solid #e6e9ee;padding:9px 12px;border-radius:999px;color:var(--muted);text-decoration:none}
+    .searchbar{display:flex;gap:12px;align-items:center;margin-top:4px}
+    .searchbar input[type="search"]{flex:1;padding:11px 12px;border-radius:10px;border:1px solid #e6e9ee;font-size:14px}
+    nav.cat-nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    nav.cat-nav a{padding:8px 12px;border-radius:999px;background:#fff;border:1px solid #eef2ff;text-decoration:none;color:var(--accent);font-weight:600;font-size:13px}
+    main{margin-top:18px}
+    section.category{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+    .category h2{margin:0 0 8px;font-size:18px}
+    .category p.desc{margin:0 0 10px;color:var(--muted);font-size:13px}
+    ul.site-list{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+    li.site{background:#fbfeff;border-radius:10px;padding:10px;border:1px solid #f0f6ff;display:flex;flex-direction:column;gap:6px}
+    a.site-name{font-weight:700;color:#0b3766;text-decoration:none}
+    .site-url{font-size:13px;color:var(--accent);word-break:break-all}
+    .site-meta{font-size:12px;color:var(--muted)}
+    .empty-note{padding:18px;text-align:center;color:var(--muted)}
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+    @media (max-width:720px){
+      .top{flex-direction:column;align-items:flex-start}
+      nav.cat-nav a{font-size:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <header>
+      <div class="top">
+        <div class="brand">
+          <h1>Research Websites</h1>
+          <p>Grouped directory — jump to a category, or search across all links.</p>
+        </div>
+
+        <div class="controls" aria-hidden="false">
+          <!-- Make sure file exists in same folder -->
+          <a class="download" href="Top_Research_Websites.xlsx" download>Download Excel</a>
+          <button class="btn" id="topSearchBtn">Focus Search</button>
+        </div>
+      </div>
+
+      <div class="searchbar" role="search" aria-label="Search research websites">
+        <input type="search" id="searchInput" placeholder="Search by site name, URL or description..." aria-label="Search input">
+      </div>
+
+      <nav class="cat-nav" id="categoryNav" aria-label="Category navigation">
+        <!-- JS will populate -->
+      </nav>
+    </header>
+
+    <main id="mainContent">
+      <!-- Sections will be injected by JS -->
+    </main>
+
+    <footer>Built with care • Save this folder with <code>index.html</code> and <code>Top_Research_Websites.xlsx</code> when hosting.</footer>
+  </div>
+
+  <script>
+    // ---------- Data grouped by large categories ----------
+    const GROUPED = {
+      "Academic Search Engines": [
+        { name: "Google Scholar", url: "https://scholar.google.com", desc: "Scholarly article search across disciplines." },
+        { name: "Semantic Scholar", url: "https://www.semanticscholar.org", desc: "AI-powered academic search." },
+        { name: "BASE", url: "https://www.base-search.net", desc: "Multidisciplinary academic search engine." },
+        { name: "CORE", url: "https://core.ac.uk", desc: "Aggregates open access research outputs." },
+        { name: "RefSeek", url: "https://www.refseek.com", desc: "Academic web search for students." }
+      ],
+
+      "Multidisciplinary Publishers & Libraries": [
+        { name: "ScienceDirect", url: "https://www.sciencedirect.com", desc: "Science and technical journals (Elsevier)." },
+        { name: "JSTOR", url: "https://www.jstor.org", desc: "Archival journals and books (humanities and social sciences)." },
+        { name: "SpringerLink", url: "https://link.springer.com", desc: "Journal and book content from Springer." },
+        { name: "Wiley Online Library", url: "https://onlinelibrary.wiley.com", desc: "Wiley journals and books." },
+        { name: "Taylor & Francis", url: "https://www.tandfonline.com", desc: "Journals across disciplines." },
+        { name: "SAGE Journals", url: "https://journals.sagepub.com", desc: "Social sciences and humanities journals." },
+        { name: "ScienceOpen", url: "https://www.scienceopen.com", desc: "Research discovery platform." }
+      ],
+
+      "Citation & Index Databases": [
+        { name: "Scopus", url: "https://www.scopus.com", desc: "Large abstract and citation database." },
+        { name: "Web of Science", url: "https://www.webofscience.com", desc: "Citation indexing and analytics." },
+        { name: "Google Scholar Metrics", url: "https://scholar.google.com/citations?view_op=top_venues", desc: "Journal metrics via Google." }
+      ],
+
+      "Open Access Repositories": [
+        { name: "PubMed Central (PMC)", url: "https://www.ncbi.nlm.nih.gov/pmc", desc: "Free full-text archive for biomedical literature." },
+        { name: "arXiv", url: "https://arxiv.org", desc: "Preprints in physics, math, CS and more." },
+        { name: "bioRxiv", url: "https://www.biorxiv.org", desc: "Biology preprints." },
+        { name: "medRxiv", url: "https://www.medrxiv.org", desc: "Health sciences preprints." },
+        { name: "DOAJ", url: "https://doaj.org", desc: "Directory of open-access journals." },
+        { name: "Zenodo", url: "https://zenodo.org", desc: "Open research data and outputs." },
+        { name: "Europe PMC", url: "https://europepmc.org", desc: "Biomedical literature search." },
+        { name: "OpenDOAR", url: "https://v2.sherpa.ac.uk/opendoar", desc: "Directory of open-access repositories." },
+        { name: "EThOS", url: "https://ethos.bl.uk", desc: "UK doctoral theses." },
+        { name: "OATD", url: "https://oatd.org", desc: "Open access theses & dissertations." }
+      ],
+
+      "Science, Health & Medicine": [
+        { name: "PubMed", url: "https://pubmed.ncbi.nlm.nih.gov", desc: "Biomedical literature search (NCBI/PubMed)." },
+        { name: "CINAHL", url: "https://www.ebsco.com/products/research-databases/cinahl", desc: "Nursing & allied health database." },
+        { name: "BioMed Central", url: "https://www.biomedcentral.com", desc: "Open access medical journals." }
+      ],
+
+      "Engineering & Technology": [
+        { name: "IEEE Xplore", url: "https://ieeexplore.ieee.org", desc: "Engineering and CS papers, conference proceedings." },
+        { name: "ACM Digital Library", url: "https://dl.acm.org", desc: "Computer science publications." },
+        { name: "NASA ADS", url: "https://ui.adsabs.harvard.edu", desc: "Astrophysics & astronomy literature." }
+      ],
+
+      "Education & Policy": [
+        { name: "ERIC", url: "https://eric.ed.gov", desc: "Education literature and resources." },
+        { name: "OECD iLibrary", url: "https://www.oecd-ilibrary.org", desc: "Economics, policy and data from OECD." }
+      ],
+
+      "Economics & Business": [
+        { name: "EconBiz", url: "https://www.econbiz.de", desc: "Economics research portal." },
+        { name: "NBER", url: "https://www.nber.org", desc: "Working papers in economics." }
+      ],
+
+      "Agriculture & Environment": [
+        { name: "AGRICOLA", url: "https://agricola.nal.usda.gov", desc: "Agricultural literature (USDA)." },
+        { name: "AGRIS", url: "https://agris.fao.org", desc: "International agricultural database." }
+      ],
+
+      "Government & Data Portals": [
+        { name: "Science.gov", url: "https://www.science.gov", desc: "US science portal." },
+        { name: "CIA World Factbook", url: "https://www.cia.gov/the-world-factbook", desc: "Country data & facts." },
+        { name: "UN Data", url: "https://data.un.org", desc: "UN statistical databases." },
+        { name: "World Bank Data", url: "https://data.worldbank.org", desc: "Global development data." },
+        { name: "NOAA", url: "https://www.noaa.gov", desc: "Climate & environmental data." },
+        { name: "NASA STI", url: "https://www.sti.nasa.gov", desc: "NASA technical reports & info." }
+      ],
+
+      "Patents & Innovation": [
+        { name: "Google Patents", url: "https://patents.google.com", desc: "Search patents from many offices." },
+        { name: "USPTO Patent Search", url: "https://ppubs.uspto.gov/pubwebapp/static/pages/landing.html", desc: "US patent office search." },
+        { name: "WIPO PATENTSCOPE", url: "https://patentscope.wipo.int", desc: "International patent search." },
+        { name: "Espacenet", url: "https://worldwide.espacenet.com", desc: "EPO worldwide patent search." }
+      ],
+
+      "Research Networks & Tools": [
+        { name: "ResearchGate", url: "https://www.researchgate.net", desc: "Network for researchers to share work." },
+        { name: "Academia.edu", url: "https://www.academia.edu", desc: "Academic networking & sharing." },
+        { name: "Mendeley", url: "https://www.mendeley.com", desc: "Reference manager & academic network." },
+        { name: "Zotero", url: "https://www.zotero.org", desc: "Open-source reference manager." },
+        { name: "EndNote", url: "https://endnote.com", desc: "Reference management software." }
+      ]
+    };
+
+    // ---------- DOM references ----------
+    const main = document.getElementById('mainContent');
+    const nav = document.getElementById('categoryNav');
+    const searchInput = document.getElementById('searchInput');
+    const topSearchBtn = document.getElementById('topSearchBtn');
+
+    // Render category nav & sections
+    function renderAll(){
+      nav.innerHTML = '';
+      main.innerHTML = '';
+      for(const [category, items] of Object.entries(GROUPED)){
+        // nav link
+        const a = document.createElement('a');
+        a.href = '#'+slug(category);
+        a.textContent = category;
+        a.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById(slug(category)).scrollIntoView({behavior:'smooth',block:'start'}); });
+        nav.appendChild(a);
+
+        // section
+        const sec = document.createElement('section');
+        sec.className = 'category';
+        sec.id = slug(category);
+
+        const h = document.createElement('h2');
+        h.textContent = category;
+        sec.appendChild(h);
+
+        const p = document.createElement('p');
+        p.className = 'desc';
+        p.textContent = items.length + ' resource' + (items.length>1 ? 's' : '');
+        sec.appendChild(p);
+
+        const ul = document.createElement('ul');
+        ul.className = 'site-list';
+        ul.setAttribute('data-category', category);
+
+        for(const it of items){
+          const li = document.createElement('li');
+          li.className = 'site';
+          li.setAttribute('data-name', it.name.toLowerCase());
+          li.setAttribute('data-url', it.url.toLowerCase());
+          li.setAttribute('data-desc', (it.desc||'').toLowerCase());
+
+          const link = document.createElement('a');
+          link.className = 'site-name';
+          link.href = it.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = it.name;
+
+          const meta = document.createElement('div');
+          meta.className = 'site-meta';
+          meta.textContent = it.desc || '';
+
+          const urlDiv = document.createElement('div');
+          urlDiv.className = 'site-url';
+          urlDiv.textContent = it.url;
+
+          li.appendChild(link);
+          li.appendChild(meta);
+          li.appendChild(urlDiv);
+          ul.appendChild(li);
+        }
+
+        sec.appendChild(ul);
+        main.appendChild(sec);
+      }
+    }
+
+    // Slug helper
+    function slug(s){ return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+
+    // Filter: hide items that don't match and hide sections with zero visible items
+    function filterAll(){
+      const q = searchInput.value.trim().toLowerCase();
+      let totalVisible = 0;
+      for(const ul of main.querySelectorAll('ul.site-list')){
+        let visibleCount = 0;
+        for(const li of ul.children){
+          const name = li.getAttribute('data-name');
+          const url = li.getAttribute('data-url');
+          const desc = li.getAttribute('data-desc');
+          const match = !q || name.includes(q) || url.includes(q) || desc.includes(q);
+          li.style.display = match ? 'flex' : 'none';
+          if(match) visibleCount++;
+        }
+        const section = ul.closest('section.category');
+        if(visibleCount === 0){
+          section.style.display = 'none';
+        } else {
+          section.style.display = 'block';
+          totalVisible += visibleCount;
+        }
+      }
+
+      // Show message if nothing visible
+      const existingEmpty = document.getElementById('noResults');
+      if(totalVisible === 0){
+        if(!existingEmpty){
+          const note = document.createElement('div');
+          note.id = 'noResults';
+          note.className = 'empty-note';
+          note.textContent = 'No results found. Try different search terms or select a category.';
+          main.appendChild(note);
+        }
+      } else {
+        if(existingEmpty) existingEmpty.remove();
+      }
+    }
+
+    // Focus search
+    topSearchBtn.addEventListener('click', ()=> searchInput.focus());
+
+    // Input event
+    searchInput.addEventListener('input', filterAll);
+
+    // Initial render
+    renderAll();
+    filterAll();
+  </script>
+</body>
+</html>
